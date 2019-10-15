@@ -59,7 +59,9 @@ class UKF {
 
   // predicted sigma points matrix
   Eigen::MatrixXd Xsig_pred_;
-
+  //
+  Eigen::MatrixXd radarNoise;
+  Eigen::MatrixXd lidarNoise;
   // time when the state is true, in us
   long long time_us_;
 
@@ -95,6 +97,9 @@ class UKF {
 
   // Sigma point spreading parameter
   double lambda_;
+
+  bool initLidar = false;
+  bool initRadar = false;
 };
 
 #endif  // UKF_H
