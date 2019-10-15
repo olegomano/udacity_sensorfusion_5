@@ -184,7 +184,7 @@ UKF::UKF() {
   P_ = MatrixXd(5, 5);
 
   // Process noise standard deviation longitudinal acceleration in m/s^2
-  std_a_ = 2.5;
+  std_a_ = 3.0;
 
   // Process noise standard deviation yaw acceleration in rad/s^2
   std_yawdd_ = 1.35;
@@ -217,6 +217,9 @@ UKF::UKF() {
    * TODO: Complete the initialization. See ukf.h for other member properties.
    * Hint: one or more values initialized above might be wildly off...
    */
+  is_initialized_ = false;
+  initRadar       = false;
+  initLidar       = false;
   lambda_ = -4;
   x_.fill(0);
   P_(0,0)  = 0.65;
@@ -235,29 +238,28 @@ UKF::UKF() {
                 0, std_laspy_*std_laspy_;
 
   time_us_ = 0; 
+
 }
 
 UKF::~UKF() {}
 
 void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
-  if(!initstate){
+  if(!is_initialized_){
+    time_us_        = meas_package.timestamp_;
     if(meas_package.sensor_type_ == MeasurementPackage::LASER){
       x_.fill(0);
       x_(0) = meas_package.raw_measurements_(0);
       x_(1) = meas_package.raw_measurements_(1);
-      x_(4) = std_yawdd_*std_yawdd_;
       initLidar = true;
     }
-    if(meas_package.sensor_type_ == MeasurementPackage::LASER){
+    if(meas_package.sensor_type_ == MeasurementPackage::RADAR){
       x_(2)     = meas_package.raw_measurements_(2) * cos(meas_package.raw_measurements_(1)); 
       initRadar = true;
     }
     if(initRadar && initLidar){
       is_initialized_ = true;
-      time_us_        = meas_package.timestamp_;
-    }else{
-      return;
     }
+    return;
   }
 
 
